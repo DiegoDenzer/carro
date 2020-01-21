@@ -1,10 +1,10 @@
 package diegodenzer.com.carros.repository;
 
 import diegodenzer.com.carros.domain.Carro;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import java.util.List;
 
-public interface CarroRepository extends CrudRepository<Carro, String> {
-    Optional<Carro> findByTipo(String tipo);
+public interface CarroRepository extends JpaRepository<Carro, String> {
+    List<Carro> findByTipo(String tipo);
 }

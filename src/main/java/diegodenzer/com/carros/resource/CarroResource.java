@@ -1,13 +1,13 @@
 package diegodenzer.com.carros.resource;
 
 import diegodenzer.com.carros.domain.Carro;
+import diegodenzer.com.carros.dto.CarroDTO;
 import diegodenzer.com.carros.service.CarroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,21 +18,29 @@ public class CarroResource {
     private CarroService service;
 
     @GetMapping
-    public Iterable<Carro> carros(){
+    public List<CarroDTO> carros(){
 
         return service.getCarros();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Carro> obter(@PathVariable String id) {
-        Optional<Carro> opt = service.obterPorId(id);
-        return opt.isPresent() ? ResponseEntity.ok().body(opt.get()) : ResponseEntity.notFound().build();
+    public ResponseEntity<CarroDTO> obter(@PathVariable String id) {
+        return service.obterPorId(id).map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Carro> atualizar(@PathVariable String id, @RequestBody Carro carro) {
+        Carro carroAtualizado = service.atualizar(carro, id);
+        return  ResponseEntity.ok().body(carroAtualizado);
     }
 
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<Carro> obterPorTipo(@PathVariable String tipo) {
-        Optional<Carro> opt = service.obterPorTipo(tipo);
-        return opt.isPresent() ? ResponseEntity.ok().body(opt.get()) : ResponseEntity.notFound().build();
+    public ResponseEntity<List<CarroDTO>> obterPorTipo(@PathVariable String tipo) {
+        List<CarroDTO> carros = service.obterPorTipo(tipo);
+        return carros.isEmpty() ?
+                ResponseEntity.noContent().build() :
+                ResponseEntity.ok(carros);
     }
 
     @PostMapping
@@ -44,6 +52,12 @@ public class CarroResource {
         } catch (Exception e) {
             return  "erro";
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public String deletar(@PathVariable String id){
+        service.delete(id);
+        return "Carro deletado";
     }
 
 }
